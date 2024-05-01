@@ -8,6 +8,8 @@ import DeleteTeacher from "../components/DeleteTeacher";
 import AddNewTeacher from "../components/AddNewUser";
 import AddNewUser from "../components/AddNewUser";
 import Student from "../components/Student";
+import EditStudent from "../components/EditStudent";
+import DeleteStudent from "../components/DeleteStudent";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState(null);
@@ -140,9 +142,17 @@ const AdminDashboard = () => {
       {editTeacherModel&&(
         <EditTeacher singleTeacher={singleTeacher} setSingleTeacher={setSingleTeacher} setEditTeacherModel={setEditTeacherModel}/>
       )}
+       {editStudentModel&&(
+        <EditStudent singleStudent={singleStudent} setSingleStudent={setSingleStudent} setEditStudentModel={setEditStudentModel}/>
+      )}
       {
         deleteTeacherModel&&(
           <DeleteTeacher singleTeacher={singleTeacher} setSingleTeacher={setSingleTeacher} setDeleteTeacherModel={setDeleteTeacherModel}/>
+        )
+      }
+      {
+        deleteStudentModel&&(
+          <DeleteStudent singleStudent={singleStudent} setSingleStudent={setSingleStudent} setDeleteStudentModel={setDeleteStudentModel}/>
         )
       }
       {

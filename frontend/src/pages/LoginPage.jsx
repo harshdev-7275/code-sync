@@ -20,9 +20,17 @@ const Login = () => {
   useEffect(() => {
     if (userInfo) {
         toast.success("Welcome to CodeSync");
-        setTimeout(() => {
-            navigate("/dashboard")
+        if(userInfo.role === 'admin'){
+          setTimeout(() => {
+            navigate("/adminDashboard")
           }, 2000);
+        }
+        if(userInfo.role === 'teacher'){
+          setTimeout(() => {
+            navigate("/teacherDashboard")
+          }, 2000);
+        }
+       
      
 
     }
@@ -38,9 +46,18 @@ const Login = () => {
     try {
       const res = await login({ id, password }).unwrap();
       dispatch(setCredentials({ ...res }));
-      setTimeout(() => {
-        navigate("/dashboard")
-      }, 2000);
+      console.log(res.role);
+      if(res.role==="admin"){
+        setTimeout(() => {
+          navigate("/adminDashboard")
+        }, 2000);
+      }
+      if (res.role==="teacher") {
+        setTimeout(() => {
+          navigate("/teacherDashboard")
+        }, 2000);
+      }
+     
      
     } catch (error) {
       console.log(error?.data?.message || error?.error);
