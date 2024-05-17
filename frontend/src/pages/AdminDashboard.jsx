@@ -79,7 +79,7 @@ const AdminDashboard = () => {
         </button>
       </div>
       <div className="flex items-center gap-[15rem]">
-        <section className="flex flex-col w-[150px] rounded-md bg-[#272626ee] items-center justify-center gap-10 h-[calc(100vh-300px)]">
+        <section className="flex flex-col w-[350px] rounded-md bg-[#272626ee] items-center justify-center gap-10 h-[calc(100vh-300px)]">
           <button
             className={`hover:bg-blue-500 ${
               activeTab === "home" && "bg-blue-500"

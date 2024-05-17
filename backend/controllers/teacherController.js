@@ -1,82 +1,83 @@
-import mongoose from "mongoose";
+
+
 import expressAsyncHandler from "express-async-handler";
-import { Quiz, Question, Answer } from "../models/quizModels.js";
+import Quiz from "../models/quizModel.js";
+import Results from "../models/resultModel.js";
+import User from "../models/userModel.js";
 
 const createQuiz = expressAsyncHandler(async (req, res) => {
-  const { title, description, duration, deadline, questions } = req.body;
+    // Assuming req.body contains the necessary data for quiz creation
 
-  if (!title || !duration || !deadline || !questions) {
-    res.status(400).json({
-      message: "Title, duration, deadline, and questions are required",
-    });
-    return;
-  }
+    const { teacher, title, questions } = req.body;
+    
 
-  try {
-    // Create quiz
-    const quiz = new Quiz({
-      title,
-      description,
-      duration,
-      deadline,
-      createdBy: req.user._id,
-      questions: questions.map((questionData) => {
-        const { questionText, questionType, answers } = questionData;
+ 
+    const limitedQuestions = questions.slice(0, 5);
 
-        // Create answers for the question
-        const questionAnswers = answers.map(
-          (answerData) =>
-            new Answer({
-              answerText: answerData.answerText,
-              isCorrect: answerData.isCorrect,
-            })
-        );
+    try {
 
-        return new Question({
-          quiz: null, // Will be set after quiz is saved
-          questionText,
-          questionType,
-          answers: questionAnswers,
+        const quiz = await Quiz.create({
+            teacher,
+            title,
+            questions: limitedQuestions
         });
-      }),
-    });
 
-    const createdQuiz = await quiz.save();
-
-    // Set quiz ID for each question and save them
-    const updatedQuestions = [];
-
-    for (let i = 0; i < createdQuiz.questions.length; i++) {
-      const question = createdQuiz.questions[i];
-      question.quiz = createdQuiz._id;
-
-      const savedQuestion = await question.save();
-
-      // Set question ID for each answer and save them
-      for (let j = 0; j < savedQuestion.answers.length; j++) {
-        const answer = savedQuestion.answers[j];
-        answer.question = savedQuestion._id;
-
-        await answer.save();
-      }
-
-      updatedQuestions.push(savedQuestion);
+        res.status(201).json({ message: "Quiz created successfully", quiz });
+    } catch (error) {
+        res.status(500).json({ message: "Quiz creation failed", error });
     }
-
-    // Fetch the quiz again to populate the createdBy field and questions with answers
-    const populatedQuiz = await Quiz.findById(createdQuiz._id)
-      .populate("createdBy")
-      .populate({
-        path: "questions",
-        populate: { path: "answers" },
-      });
-
-    res.status(201).json(populatedQuiz);
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Quiz creation failed", error: error.message });
-  }
 });
+const getAllQuizByTeacher = expressAsyncHandler(async (req, res) => {
 
-export { createQuiz };
+    const { id } = req.params;
+
+    const quiz = await Quiz.find({ teacher: id });
+    const modifiedQuizzes = quiz.map((quiz) => ({
+        _id: quiz._id.toString(),
+        title: quiz.title,
+        teacher: quiz.teacher.toString()
+    }));
+    if (!quiz) {
+        res.status(404);
+        throw new Error("Quiz not found");
+    }
+    res.status(200).json({
+        success: true,
+        data: modifiedQuizzes
+    });
+    
+})
+const getResultByQuiz = expressAsyncHandler(async (req, res) => {
+    const { id } = req.params;
+    try {
+      const result = await Results.findOne({ quiz: id });
+      if (!result) {
+        res.status(404);
+        throw new Error("Result not found");
+      }
+      
+      // Fetch student details and modify the result
+      const modifiedResult = await Promise.all(result.students.map(async (student) => {
+        const studentDetail = await User.findById(student.student);
+        return {
+          name: studentDetail.name,
+          marks: student.marks,
+          id: student.student // Assuming you also want to include the student ID
+        };
+      }));
+  
+      res.status(200).json({
+        success: true,
+        data: modifiedResult // Sending the modified result
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
+    }
+  });
+  
+
+
+export {createQuiz, getAllQuizByTeacher, getResultByQuiz}

@@ -29,7 +29,7 @@ const router = createBrowserRouter(
   )
 );
 const theme = createTheme({
-  /** Put your mantine theme override here */
+  
 });
 
 ReactDOM.createRoot(document.getElementById("root")).render(

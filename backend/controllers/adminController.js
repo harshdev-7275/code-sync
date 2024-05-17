@@ -1,5 +1,7 @@
 import expressAsyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
+import Message from "../models/messageModel.js";
+import mongoose from "mongoose";
 
 const getAllTeachers = expressAsyncHandler(async (req, res) => {
   const teachers = await User.find({ role: "teacher" });
@@ -105,6 +107,12 @@ const deleteStudent = expressAsyncHandler(async (req, res) => {
   console.log(teacher);
   res.status(200).json({ message: "Student deleted" });
 });
+const isValidObjectId = (id) => {
+  return mongoose.Types.ObjectId.isValid(id);
+};
+
+
+
 
 export {
   getAllTeachers,
@@ -114,4 +122,5 @@ export {
   getAllStudents,
   updateStudent,
   deleteStudent,
+  
 };
